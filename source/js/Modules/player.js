@@ -1,10 +1,12 @@
 import * as three from "../../libs/three.js-master/src/Three.js";
 import textures from "./textures.js";
+import { Block } from "./block.js";
 
 export class Player {
     x = 0;
     y = 0;
     z = 0;
+    world;
     player = new three.Mesh(
         new three.BoxGeometry(1,2,1),
         new three.MeshBasicMaterial({
@@ -15,11 +17,20 @@ export class Player {
         new three.MeshBasicMaterial({
             map: new three.TextureLoader().load(textures.diamond_block)
     }));
+    hotbar = [];
+    hotbarInstance = [];
 
-    constructor(scene,x = 0,y = 1.5,z = 0) {
+    constructor(scene,world,x = 0,y = 1.5,z = 0) {
         this.setX(x);
         this.setY(y);
         this.setZ(z);
+        this.setWorld(world);
+
+        for(let i = 1; i <= 9; i++) {
+            this.hotbar[i] = {
+                blockTexture: null,
+            }
+        }
 
         this.intance(scene);
     }
@@ -41,6 +52,10 @@ export class Player {
         return this.player;
     }
 
+    getWorld() {
+        return this.world;
+    }
+
     //#endregion
     
     //#region Setters
@@ -60,6 +75,10 @@ export class Player {
         this.player = player;
     }
 
+    setWorld(world) {
+        this.world = world;
+    }
+
     //#endregion
 
     //#region Movers
@@ -74,6 +93,12 @@ export class Player {
         this.hand.position.x = this.getX()+0.5;
         this.hand.position.y = this.getY()+0.05;
         this.hand.position.z = this.getZ()-2;
+
+        this.hotbarInstance.forEach((e,i) => {
+            e.position.x = this.getX()+0.5-(i*0.1),
+            e.position.y = this.getY()+0.30
+            e.position.z = this.getZ()-1.45
+        });
     }
     //#endregion
 
@@ -90,12 +115,55 @@ export class Player {
         this.hand.rotateY(-5);
         this.hand.rotateZ(10);
 
+        for(let i = 1; i <= 9; i++) {
+            const blockBase = new three.BoxGeometry(0.1, 0.1, 0.1);
+            const materials = [
+                new three.MeshBasicMaterial(
+                    {
+                        map: new three.TextureLoader().load(textures.hotbar),
+                    }
+                ).alphaMap = 0,
+                new three.MeshBasicMaterial(
+                    {
+                        map: new three.TextureLoader().load(textures.hotbar),
+                    }
+                ).alphaMap = 0,
+                new three.MeshBasicMaterial(
+                    {
+                        map: new three.TextureLoader().load(textures.hotbar),
+                        
+                    }
+                ).alphaMap = 0,
+                new three.MeshBasicMaterial(
+                    {
+                        map: new three.TextureLoader().load(textures.hotbar)
+                    }
+                ).alphaMap = 0,
+                new three.MeshBasicMaterial(
+                    {
+                        map: new three.TextureLoader().load(textures.hotbar)
+                    }
+                ),
+                new three.MeshBasicMaterial(
+                    {
+                        map: new three.TextureLoader().load(textures.hotbar)
+                    }
+                ).alphaMap = 0,
+            ]
+
+            const hotbarInstance = new three.Mesh(blockBase,materials);
+            hotbarInstance.position.set(this.getX()+0.5-(i*0.1),this.getY()+0.30,this.getZ()-1.45);
+            this.hotbarInstance[i] = hotbarInstance;
+            scene.add(hotbarInstance);
+        }
+
         scene.add(this.hand);
         scene.add(this.player);
     }
 
-    placeBlock(newBlock,texture) {
-        newBlock(texture,this.getX(),this.getY()-0.5,this.getZ()-3)
+    placeBlock(texture,scene) {
+        const block = new Block(scene,this.getX(),this.getY()-0.5,this.getZ()-3,this.getWorld());
+        block.newBlock([texture],scene);
     }
 
     //#endregion

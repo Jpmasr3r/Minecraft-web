@@ -1,6 +1,10 @@
 import * as three from "../libs/three.js-master/src/Three.js";
-import textures from "./Modules/textures.js";
+import textures from "./modules/textures.js";
 import { Player } from "./modules/player.js";
+import { Block } from "./modules/block.js";
+import { World } from "./modules/world.js";
+
+const world = new World();
 
 const mainScene = new three.Scene();
 const mainCamera = new three.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 1000);
@@ -12,65 +16,34 @@ const renderer = new three.WebGLRenderer({
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const blockBase = new three.BoxGeometry(1, 1, 1);
-function newBlock(texture, x, y, z) {
-    const block = new three.Mesh(
-        blockBase,
-        new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture)
-        })
-    );
-    block.position.set(x, y, z);
-    mainScene.add(block);
-}
-
-function newBlockTwoTextures(texture1,texture2, x, y, z) {
-    const block = new three.Mesh(
-        blockBase,
-        [new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture1)
-        }),
-        new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture1)
-        }),
-        new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture2)
-        }),
-        new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture1)
-        }),
-        new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture1)
-        }),
-        new three.MeshBasicMaterial({
-            map: new three.TextureLoader().load(texture1)
-        })]
-    );
-    block.position.set(x, y, z);
-    mainScene.add(block);
-}
-
 let sizeWorld = 10;
-for (let i = 0; i <= sizeWorld; i++) {
-    for (let j = 0; j <= sizeWorld; j++) {
+for (let i = 1; i <= sizeWorld; i++) {
+    for (let j = 1; j <= sizeWorld; j++) {
         let selectTexture = textures.grass_side_carrier;
         let selectTexture2 = textures.grass_carrier;
-        newBlockTwoTextures(selectTexture,selectTexture2, i, 0, j);
-        newBlockTwoTextures(selectTexture,selectTexture2, i, 0, j * -1);
-        newBlockTwoTextures(selectTexture,selectTexture2, i * -1, 0, j * -1);
-        newBlockTwoTextures(selectTexture,selectTexture2, i * -1, 0, j);
+
+        let block = new Block(mainScene,i-(sizeWorld/2),0,j-(sizeWorld/2),world);
+        block.newBlock([
+            selectTexture,
+            selectTexture,
+            selectTexture2,
+            selectTexture,
+            selectTexture,
+            selectTexture,
+        ],mainScene);
     }
 }
 
 const player = new Player(mainScene);
 const spd = 0.1;
 
-
+//#region Debug
 // mainCamera.position.z = 10;
 // mainCamera.position.y = 5;
+//#endregion
+
 
 let keyPress = null;
-let mousePress = null
 addEventListener("keydown",(key) => {
     keyPress = key.key; 
 });
@@ -99,10 +72,13 @@ function mainAnimation() {
         player.move(player.getX()+spd,player.getZ());
     } 
 
+    document.addEventListener("click",() => {
+        player.placeBlock(textures.diamond_block,mainScene);
+    });
+
     if(keyPress == "u") {
-        player.placeBlock(newBlock,textures.diamond_block);
+        console.log(world.blocks);
     }
-    
 
     renderer.render(mainScene, mainCamera);
 }
