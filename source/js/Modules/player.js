@@ -82,8 +82,9 @@ export class Player {
     //#endregion
 
     //#region Movers
-    move(newX,newZ) {
+    move(newX = this.getX(),newZ = this.getZ(),newY = this.getY()) {
         this.setX(newX);
+        this.setY(newY);
         this.setZ(newZ);
         
         this.player.position.x = this.getX();
@@ -163,7 +164,7 @@ export class Player {
 
     placeBlock(texture,scene) {
         const block = new Block(scene,this.getX(),this.getY()-0.5,this.getZ()-3,this.getWorld());
-        block.newBlock([texture],scene);
+        block.newBlock([texture],scene,1,1,1,true);
     }
 
     //#endregion

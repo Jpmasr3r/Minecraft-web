@@ -58,19 +58,19 @@ export class Block {
     //#endregion
 
     //#region Create Blocks
-    newBlock(textures = [], scene, sizeX = 1, sizeY = 1, sizeZ = 1) {
-        let blocks = this.getWorld();
-        blocks = blocks.blocks;
-        console.log(blocks);
+    newBlock(textures = [], scene, sizeX = 1, sizeY = 1, sizeZ = 1,verify = false) {
         let failPlace = false;
-        blocks.forEach(e => {
-            if (this.getX() == e.position.x
-                && this.getY() == e.position.y
-                && this.getZ() == e.position.z) {
-                failPlace = true;
-            }
-            
-        });
+        if(verify) {
+            this.getWorld().getBlocks().forEach(e => {
+                if(
+                    e.position.x == this.getX() &&
+                    e.position.y == this.getY() &&
+                    e.position.z == this.getZ()
+                ) {
+                    failPlace = true;
+                }
+            });
+        }
 
         if (!failPlace) {
             if (textures.length == 1) {
@@ -123,9 +123,10 @@ export class Block {
                 scene.add(block);
                 this.setBlock(block);
                 this.getWorld().setBlock(block);
+                console.log("Bloco sucesso");
             }
         }else {
-            console.log("cu");
+            console.log("Bloco falho");
         }
     }
     //#endregion

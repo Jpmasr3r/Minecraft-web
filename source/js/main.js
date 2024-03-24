@@ -4,7 +4,7 @@ import { Player } from "./modules/player.js";
 import { Block } from "./modules/block.js";
 import { World } from "./modules/world.js";
 
-const world = new World();
+const world = new World(1);
 
 const mainScene = new three.Scene();
 const mainCamera = new three.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 1000);
@@ -22,7 +22,7 @@ for (let i = 1; i <= sizeWorld; i++) {
         let selectTexture = textures.grass_side_carrier;
         let selectTexture2 = textures.grass_carrier;
 
-        let block = new Block(mainScene,i-(sizeWorld/2),0,j-(sizeWorld/2),world);
+        let block = new Block(mainScene, i - (sizeWorld / 2), 0, j - (sizeWorld / 2), world);
         block.newBlock([
             selectTexture,
             selectTexture,
@@ -30,12 +30,28 @@ for (let i = 1; i <= sizeWorld; i++) {
             selectTexture,
             selectTexture,
             selectTexture,
-        ],mainScene);
+        ], mainScene);
+    }
+}
+for (let i = 1; i <= sizeWorld * 2; i++) {
+    for (let j = 1; j <= sizeWorld * 2; j++) {
+        let selectTexture = textures.grass_side_carrier;
+        let selectTexture2 = textures.grass_carrier;
+
+        let block = new Block(mainScene, i - sizeWorld, -1, j - sizeWorld, world);
+        block.newBlock([
+            selectTexture,
+            selectTexture,
+            selectTexture2,
+            selectTexture,
+            selectTexture,
+            selectTexture,
+        ], mainScene);
     }
 }
 
-const player = new Player(mainScene);
-const spd = 0.1;
+const player = new Player(mainScene, world,0,5);
+const spd = 1;
 
 //#region Debug
 // mainCamera.position.z = 10;
@@ -44,8 +60,8 @@ const spd = 0.1;
 
 
 let keyPress = null;
-addEventListener("keydown",(key) => {
-    keyPress = key.key; 
+addEventListener("keydown", (key) => {
+    keyPress = key.key;
 });
 addEventListener("keyup", () => {
     keyPress = null;
@@ -56,28 +72,54 @@ function mainAnimation() {
     requestAnimationFrame(mainAnimation);
 
     mainCamera.position.x = player.getX();
-    mainCamera.position.y = player.getY()+0.5;
-    mainCamera.position.z = player.getZ()-1;
+    mainCamera.position.y = player.getY() + 0.5;
+    mainCamera.position.z = player.getZ() - 1;
 
-    if(keyPress == "w") {
-        player.move(player.getX(),player.getZ()-spd);
-    } 
-    if(keyPress == "s") {
-        player.move(player.getX(),player.getZ()+spd);
-    } 
-    if(keyPress == "a") {
-        player.move(player.getX()-spd,player.getZ());
-    } 
-    if(keyPress == "d") {
-        player.move(player.getX()+spd,player.getZ());
-    } 
+    switch (keyPress) {
+        case "w":
+            player.move(player.getX(), player.getZ() - spd);
+            keyPress = null;
+            break;
 
-    document.addEventListener("click",() => {
-        player.placeBlock(textures.diamond_block,mainScene);
+        case "s":
+            player.move(player.getX(), player.getZ() + spd);
+            keyPress = null;
+            break;
+
+        case "a":
+            player.move(player.getX() - spd, player.getZ());
+            keyPress = null;
+            break;
+
+        case "d":
+            player.move(player.getX() + spd, player.getZ());
+            keyPress = null;
+            break;
+
+        default:
+            break;
+    }
+
+    document.addEventListener("click", () => {
+        player.placeBlock(textures.diamond_block, mainScene);
     });
 
-    if(keyPress == "u") {
-        console.log(world.blocks);
+    let down = true;
+    world.getBlocks().forEach(e => {
+        if (
+            player.getX() == e.position.x &&
+            (
+                player.getY() >= e.position.y - 1.5 &&
+                player.getY() <= e.position.y + 1.5
+            ) &&
+            player.getZ() == e.position.z
+        ) {
+            down = false;
+        }
+    })
+
+    if (down) {
+        player.move(player.getX(),player.getZ(), player.getY() - world.getGrav());
     }
 
     renderer.render(mainScene, mainCamera);

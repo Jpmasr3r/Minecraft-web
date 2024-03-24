@@ -1,7 +1,9 @@
 export class World {
     blocks = [];
-    constructor() {
+    grav;
+    constructor(grav) {
         this.blocks = [];
+        this.setGrav(grav);
     }
 
     setBlock(block) {
@@ -10,5 +12,13 @@ export class World {
 
     getBlocks() {
         return this.blocks;
+    }
+
+    setGrav(grav) {
+        this.grav = grav/10;
+    }
+
+    getGrav() {
+        return this.grav;
     }
 }
