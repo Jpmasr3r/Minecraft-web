@@ -7,7 +7,7 @@ import { World } from "./modules/world.js";
 const world = new World(1);
 
 const mainScene = new three.Scene();
-const mainCamera = new three.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 1000);
+const mainCamera = new three.PerspectiveCamera(80, innerWidth / innerHeight, 0.1, 1000);
 
 const renderer = new three.WebGLRenderer({
     alpha: true,
@@ -33,8 +33,8 @@ for (let i = 1; i <= sizeWorld; i++) {
         ], mainScene);
     }
 }
-for (let i = 1; i <= sizeWorld * 2; i++) {
-    for (let j = 1; j <= sizeWorld * 2; j++) {
+for (let i = 1; i <= sizeWorld * 3; i++) {
+    for (let j = 1; j <= sizeWorld * 3; j++) {
         let selectTexture = textures.grass_side_carrier;
         let selectTexture2 = textures.grass_carrier;
 
@@ -50,7 +50,7 @@ for (let i = 1; i <= sizeWorld * 2; i++) {
     }
 }
 
-const player = new Player(mainScene, world,0,5);
+const player = new Player(mainScene, world, 0, 5);
 const spd = 1;
 
 //#region Debug
@@ -119,7 +119,7 @@ function mainAnimation() {
     })
 
     if (down) {
-        player.move(player.getX(),player.getZ(), player.getY() - world.getGrav());
+        player.move(player.getX(), player.getZ(), player.getY() - world.getGrav());
     }
 
     renderer.render(mainScene, mainCamera);
